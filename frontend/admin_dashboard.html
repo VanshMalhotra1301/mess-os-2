@@ -4,14 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mess Admin Pro | Enterprise SaaS</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Mess Admin Pro | SmartMess AI</title>
+    <meta name="description" content="SmartMess AI — Enterprise food operations and surplus redistribution platform.">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/shared.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <script>
         const CURRENT_MESS_ID = {{ user_id }};
         const CURRENT_ORG_NAME = "{{ org_name }}";
+        const BACKEND_URL = "{{ BACKEND_URL }}";
     </script>
     <style>
         :root {
@@ -49,6 +53,92 @@
             --sidebar-width: 260px;
         }
 
+        /* ============================
+           DARK MODE
+           ============================ */
+        body.dark-mode {
+            --bg-body: #0b0f19;
+            --bg-surface: #141921;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: #1e293b;
+            --bg-sidebar: #080c14;
+        }
+
+        body.dark-mode .card {
+            background: var(--bg-surface);
+            border-color: var(--border);
+        }
+
+        body.dark-mode .top-header {
+            background: rgba(20, 25, 33, 0.90);
+            border-color: var(--border);
+        }
+
+        body.dark-mode th {
+            background: #1a2233;
+            color: var(--text-muted);
+        }
+
+        body.dark-mode td {
+            color: var(--text-main);
+        }
+
+        body.dark-mode td,
+        body.dark-mode th {
+            border-color: var(--border);
+        }
+
+        body.dark-mode .ops-console {
+            background: #141921;
+            border-color: var(--border);
+        }
+
+        body.dark-mode input,
+        body.dark-mode select {
+            background: #1a2233;
+            border-color: var(--border);
+            color: var(--text-main);
+        }
+
+        body.dark-mode .chat-messages {
+            background: #0d1117;
+        }
+
+        body.dark-mode .chat-msg.ngo {
+            background: #1a2233;
+            border-color: var(--border);
+            color: var(--text-main);
+        }
+
+        body.dark-mode .chat-input-area {
+            background: #141921;
+            border-color: var(--border);
+        }
+
+        body.dark-mode .chat-input-area input {
+            background: #1a2233;
+        }
+
+        body.dark-mode #menuDetailPanel {
+            background: #141921;
+        }
+
+        body.dark-mode .panel-stat-box {
+            background: #1a2233;
+            border-color: var(--border);
+        }
+
+        body.dark-mode .panel-close-btn {
+            background: #1a2233;
+        }
+
+        body.dark-mode .meal-filter-btn {
+            background: #1a2233;
+            border-color: var(--border);
+            color: var(--text-muted);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -62,6 +152,7 @@
             height: 100vh;
             overflow: hidden;
             display: flex;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         /* ============================
@@ -74,7 +165,7 @@
             display: flex;
             flex-direction: column;
             border-right: 1px solid #1e293b;
-            transition: width 0.3s ease;
+            transition: width 0.3s ease, background-color 0.3s ease, color 0.3s ease;
             z-index: 50;
         }
 
@@ -202,6 +293,7 @@
             position: sticky;
             top: 0;
             z-index: 40;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
 
         .breadcrumbs {
@@ -1341,6 +1433,302 @@
             font-size: 12px;
             color: var(--text-muted);
         }
+
+        /* ============================
+           GLOBAL SEARCH BAR
+           ============================ */
+        .global-search {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .global-search input {
+            width: 220px;
+            padding: 8px 36px 8px 36px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-full);
+            font-size: 13px;
+            background: var(--bg-body);
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .global-search input:focus {
+            width: 280px;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+            background: var(--bg-surface);
+        }
+
+        .global-search .search-icon {
+            position: absolute;
+            left: 12px;
+            color: var(--text-muted);
+            font-size: 13px;
+            pointer-events: none;
+        }
+
+        .global-search .search-shortcut {
+            position: absolute;
+            right: 10px;
+            font-size: 10px;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-body);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 1px 5px;
+            pointer-events: none;
+        }
+
+        .global-search input:focus~.search-shortcut {
+            display: none;
+        }
+
+        /* ============================
+           NOTIFICATION BELL
+           ============================ */
+        .notif-btn {
+            position: relative;
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-md);
+            background: var(--bg-body);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .notif-btn:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .notif-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 16px;
+            height: 16px;
+            background: var(--danger);
+            border-radius: 50%;
+            font-size: 9px;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--bg-body);
+        }
+
+        .notif-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 340px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+        }
+
+        .notif-dropdown.open {
+            display: block;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .notif-header {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notif-header h4 {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .notif-header span {
+            font-size: 11px;
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .notif-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s;
+            cursor: pointer;
+        }
+
+        .notif-item:last-child {
+            border-bottom: none;
+        }
+
+        .notif-item:hover {
+            background: var(--bg-body);
+        }
+
+        .notif-item.unread {
+            background: #fafbff;
+        }
+
+        .notif-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .notif-text .notif-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 2px;
+        }
+
+        .notif-text .notif-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .notif-time {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .notif-unread-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--primary);
+            flex-shrink: 0;
+            margin-top: 5px;
+            margin-left: auto;
+        }
+
+        /* ============================
+           KEYBOARD SHORTCUTS MODAL
+           ============================ */
+        .shortcut-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 5000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .shortcut-modal-backdrop.open {
+            display: flex;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .shortcut-modal {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+            padding: 28px 32px;
+            width: 480px;
+            max-width: 95vw;
+            border: 1px solid var(--border);
+        }
+
+        .shortcut-modal h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .shortcut-modal p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .shortcut-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .shortcut-row:last-child {
+            border-bottom: none;
+        }
+
+        .shortcut-row .s-label {
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .shortcut-keys {
+            display: flex;
+            gap: 4px;
+        }
+
+        .shortcut-keys kbd {
+            padding: 3px 8px;
+            background: var(--bg-body);
+            border: 1px solid var(--border);
+            border-bottom-width: 2px;
+            border-radius: 5px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* ============================
+           DARK MODE TOGGLE
+           ============================ */
+        .dark-toggle {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-md);
+            background: var(--bg-body);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .dark-toggle:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
     </style>
 </head>
 
@@ -1400,15 +1788,60 @@
                 Mess OS / <span id="pageTitle">Dashboard</span>
             </div>
             <div class="header-actions">
-                <div class="status-badge" style="background: #f1f5f9; color: #64748b;">
+                <!-- Global Search -->
+                <div class="global-search">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="globalSearch" placeholder="Search sections..."
+                        onkeydown="handleSearchKey(event)">
+                    <span class="search-shortcut">/</span>
+                </div>
+
+                <!-- Live Clock -->
+                <div class="status-badge"
+                    style="background: #f1f5f9; color: #64748b; font-family:'JetBrains Mono',monospace; font-size:12px;">
                     <i class="fa-regular fa-clock"></i> <span id="liveClock">--:--</span>
                 </div>
+
+                <!-- Connection Status -->
                 <div class="status-badge" id="connStatus"
                     style="background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger);">
                     <div class="pulse-dot" style="width:6px; height:6px; background:currentColor; border-radius:50%;">
                     </div>
                     <span id="connText">Offline</span>
                 </div>
+
+                <!-- Keyboard Shortcuts Btn -->
+                <button class="dark-toggle" title="Keyboard Shortcuts (?)" onclick="toggleShortcuts()">
+                    <i class="fa-solid fa-keyboard"></i>
+                </button>
+
+                <!-- Dark Mode Toggle -->
+                <button class="dark-toggle" id="darkToggle" title="Toggle Dark Mode" onclick="toggleDarkMode()">
+                    <i class="fa-solid fa-moon" id="darkIcon"></i>
+                </button>
+
+                <!-- Notifications -->
+                <div style="position:relative;">
+                    <button class="notif-btn" id="notifBtn" onclick="toggleNotifications()">
+                        <i class="fa-solid fa-bell"></i>
+                        <span class="notif-badge" id="notifBadge">3</span>
+                    </button>
+                    <div class="notif-dropdown" id="notifDropdown">
+                        <div class="notif-header">
+                            <h4>Notifications</h4>
+                            <span onclick="markAllRead()">Mark all read</span>
+                        </div>
+                        <div id="notifList"></div>
+                    </div>
+                </div>
+
+                <!-- Logout -->
+                <a href="/logout"
+                    style="display:flex; align-items:center; gap:6px; padding:8px 16px; background:var(--danger-bg); color:var(--danger); border-radius:var(--radius-md); font-size:13px; font-weight:600; text-decoration:none; transition:all 0.2s; border:1px solid rgba(225,29,72,0.2);"
+                    onmouseover="this.style.background='var(--danger)';this.style.color='white'"
+                    onmouseout="this.style.background='var(--danger-bg)';this.style.color='var(--danger)'">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
             </div>
         </header>
 
@@ -3500,7 +3933,7 @@
         async function loadChatHistory() {
             if (!CURRENT_NGO_ID) return;
             try {
-                const res = await fetch('http://127.0.0.1:8000/api/chat-history?mess_id=' + CURRENT_MESS_ID + '&ngo_id=' + CURRENT_NGO_ID);
+                const res = await fetch(BACKEND_URL + '/api/chat-history?mess_id=' + CURRENT_MESS_ID + '&ngo_id=' + CURRENT_NGO_ID);
                 const msgs = await res.json();
                 const container = document.getElementById('chatMessages');
                 container.innerHTML = '';
@@ -3567,7 +4000,7 @@
             showTypingIndicator();
 
             try {
-                await fetch('http://127.0.0.1:8000/api/chat', {
+                await fetch(BACKEND_URL + '/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -3648,19 +4081,19 @@
 
         async function exportAttendanceCSV() {
             showToast("Generating Attendance CSV...", "info");
-            window.location.href = "http://127.0.0.1:8000/api/reports/attendance/csv";
+            window.location.href = BACKEND_URL + "/api/reports/attendance/csv";
             setTimeout(() => showToast("Download started", "success"), 1000);
         }
 
         async function exportWasteCSV() {
             showToast("Generating Waste Report...", "info");
-            window.location.href = "http://127.0.0.1:8000/api/reports/waste/csv";
+            window.location.href = BACKEND_URL + "/api/reports/waste/csv";
             setTimeout(() => showToast("Download started", "success"), 1000);
         }
 
         async function exportWeeklyCSV() {
             showToast("Generating Weekly Summary...", "info");
-            window.location.href = "http://127.0.0.1:8000/api/reports/weekly/csv";
+            window.location.href = BACKEND_URL + "/api/reports/weekly/csv";
             setTimeout(() => showToast("Download started", "success"), 1000);
         }
 
@@ -3669,7 +4102,7 @@
                 return;
             }
             try {
-                const res = await fetch("http://127.0.0.1:8000/api/settings/clear-attendance?mess_id=" + CURRENT_MESS_ID, {
+                const res = await fetch(BACKEND_URL + "/api/settings/clear-attendance?mess_id=" + CURRENT_MESS_ID, {
                     method: 'DELETE'
                 });
                 if (res.ok) {
@@ -3682,6 +4115,210 @@
                 showToast("Server error while clearing data.", "error");
             }
         }
+    </script>
+
+    <!-- ====== KEYBOARD SHORTCUTS MODAL ====== -->
+    <div class="shortcut-modal-backdrop" id="shortcutModal" onclick="if(event.target===this)toggleShortcuts()">
+        <div class="shortcut-modal">
+            <h3><i class="fa-solid fa-keyboard" style="color:var(--primary); margin-right:8px;"></i>Keyboard Shortcuts
+            </h3>
+            <p>Navigate faster with these power-user shortcuts.</p>
+            <div class="shortcut-row"><span class="s-label">Focus Search</span>
+                <div class="shortcut-keys"><kbd>/</kbd></div>
+            </div>
+            <div class="shortcut-row"><span class="s-label">Show Shortcuts</span>
+                <div class="shortcut-keys"><kbd>?</kbd></div>
+            </div>
+            <div class="shortcut-row"><span class="s-label">Go to Dashboard</span>
+                <div class="shortcut-keys"><kbd>G</kbd><kbd>D</kbd></div>
+            </div>
+            <div class="shortcut-row"><span class="s-label">Go to Attendance</span>
+                <div class="shortcut-keys"><kbd>G</kbd><kbd>A</kbd></div>
+            </div>
+            <div class="shortcut-row"><span class="s-label">Go to Menu Planner</span>
+                <div class="shortcut-keys"><kbd>G</kbd><kbd>M</kbd></div>
+            </div>
+            <div class="shortcut-row"><span class="s-label">Go to Donations</span>
+                <div class="shortcut-keys"><kbd>G</kbd><kbd>H</kbd></div>
+            </div>
+            <div class="shortcut-row"><span class="s-label">Toggle Dark Mode</span>
+                <div class="shortcut-keys"><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>D</kbd></div>
+            </div>
+            <div class="shortcut-row"><span class="s-label">Close Modal</span>
+                <div class="shortcut-keys"><kbd>Esc</kbd></div>
+            </div>
+            <div style="margin-top:16px; text-align:right;">
+                <button onclick="toggleShortcuts()"
+                    style="padding:8px 20px; background:var(--primary); color:white; border:none; border-radius:8px; font-weight:600; cursor:pointer; font-size:13px;">Got
+                    it</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ====== DARK MODE ======
+        function updateChartDarkTheme(chart, isDark) {
+            if (!chart) return;
+            const textColor = isDark ? '#94a3b8' : '#64748b';
+            const gridColor = isDark ? '#1e293b' : '#e2e8f0';
+
+            if (chart.options && chart.options.scales) {
+                if (chart.options.scales.x) {
+                    chart.options.scales.x.ticks.color = textColor;
+                    if (chart.options.scales.x.grid) chart.options.scales.x.grid.color = gridColor;
+                }
+                if (chart.options.scales.y) {
+                    chart.options.scales.y.ticks.color = textColor;
+                    if (chart.options.scales.y.grid) chart.options.scales.y.grid.color = gridColor;
+                }
+            }
+            if (chart.options && chart.options.plugins && chart.options.plugins.legend && chart.options.plugins.legend.labels) {
+                chart.options.plugins.legend.labels.color = textColor;
+            }
+            chart.update();
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            const icon = document.getElementById('darkIcon');
+            if (icon) {
+                icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            }
+            localStorage.setItem('mess_dark_mode', isDark ? '1' : '0');
+
+            if (typeof sustainChartInstance !== 'undefined') updateChartDarkTheme(sustainChartInstance, isDark);
+            if (typeof accuracyChartInstance !== 'undefined') updateChartDarkTheme(accuracyChartInstance, isDark);
+        }
+
+        // Apply on load
+        if (localStorage.getItem('mess_dark_mode') === '1') {
+            document.body.classList.add('dark-mode');
+            const icon = document.getElementById('darkIcon');
+            if (icon) icon.className = 'fa-solid fa-sun';
+
+            // Wait a bit for charts to initialize then apply dark theme
+            setTimeout(() => {
+                if (typeof sustainChartInstance !== 'undefined') updateChartDarkTheme(sustainChartInstance, true);
+                if (typeof accuracyChartInstance !== 'undefined') updateChartDarkTheme(accuracyChartInstance, true);
+            }, 500);
+        }
+
+        // ====== NOTIFICATIONS ======
+        const NOTIFICATIONS = [
+            { icon: 'fa-truck-fast', iconBg: '#d1fae5', iconColor: '#059669', title: 'NGO Pickup Confirmed', desc: 'Green India Foundation confirmed pickup for 12kg surplus.', time: '2 min ago', unread: true },
+            { icon: 'fa-wand-magic-sparkles', iconBg: '#e0e7ff', iconColor: '#4f46e5', title: 'AI Forecast Ready', desc: 'Tomorrow\'s predicted attendance: 342 students.', time: '18 min ago', unread: true },
+            { icon: 'fa-triangle-exclamation', iconBg: '#fef3c7', iconColor: '#d97706', title: 'Surplus Alert', desc: 'Surplus of 8.2kg detected from lunch data today.', time: '1 hr ago', unread: true },
+            { icon: 'fa-file-csv', iconBg: '#f1f5f9', iconColor: '#64748b', title: 'Weekly Report Generated', desc: 'Attendance & waste CSV report is ready to download.', time: 'Yesterday', unread: false },
+        ];
+
+        function renderNotifications() {
+            const list = document.getElementById('notifList');
+            if (!list) return;
+            list.innerHTML = NOTIFICATIONS.map(n => `
+                <div class="notif-item ${n.unread ? 'unread' : ''}">
+                    <div class="notif-icon" style="background:${n.iconBg}; color:${n.iconColor};">
+                        <i class="fa-solid ${n.icon}"></i>
+                    </div>
+                    <div class="notif-text" style="flex:1;">
+                        <div class="notif-title">${n.title}</div>
+                        <div class="notif-desc">${n.desc}</div>
+                        <div class="notif-time">${n.time}</div>
+                    </div>
+                    ${n.unread ? '<div class="notif-unread-dot"></div>' : ''}
+                </div>
+            `).join('');
+        }
+        renderNotifications();
+
+        let notifOpen = false;
+        function toggleNotifications() {
+            notifOpen = !notifOpen;
+            document.getElementById('notifDropdown').classList.toggle('open', notifOpen);
+        }
+        function markAllRead() {
+            NOTIFICATIONS.forEach(n => n.unread = false);
+            const badge = document.getElementById('notifBadge');
+            if (badge) badge.style.display = 'none';
+            renderNotifications();
+        }
+        document.addEventListener('click', (e) => {
+            if (notifOpen && !document.getElementById('notifBtn').contains(e.target) && !document.getElementById('notifDropdown').contains(e.target)) {
+                notifOpen = false;
+                document.getElementById('notifDropdown').classList.remove('open');
+            }
+        });
+
+        // ====== KEYBOARD SHORTCUTS MODAL ======
+        function toggleShortcuts() {
+            document.getElementById('shortcutModal').classList.toggle('open');
+        }
+
+        // ====== GLOBAL SEARCH ======
+        const SEARCH_MAP = [
+            { keywords: ['dashboard', 'home', 'overview'], tab: 'dashboard' },
+            { keywords: ['menu', 'planner', 'food', 'meal'], tab: 'menu' },
+            { keywords: ['attendance', 'students', 'logs'], tab: 'attendance' },
+            { keywords: ['donation', 'history', 'surplus'], tab: 'donations' },
+            { keywords: ['sustainability', 'co2', 'carbon', 'esg'], tab: 'sustainability' },
+            { keywords: ['chat', 'ngo', 'message'], tab: 'chat' },
+            { keywords: ['settings', 'config'], tab: 'settings' },
+        ];
+        function handleSearchKey(e) {
+            if (e.key === 'Enter') {
+                const q = e.target.value.toLowerCase().trim();
+                for (const entry of SEARCH_MAP) {
+                    if (entry.keywords.some(k => q.includes(k))) {
+                        const navItem = Array.from(document.querySelectorAll('.nav-item')).find(el => el.getAttribute('onclick') && el.getAttribute('onclick').includes(entry.tab));
+                        if (navItem) { navItem.click(); e.target.value = ''; e.target.blur(); return; }
+                    }
+                }
+                showToast('No section matched "' + q + '"', 'info');
+            }
+        }
+
+        // ====== GLOBAL KEYBOARD HANDLER ======
+        let goBuffer = '';
+        let goTimer = null;
+        document.addEventListener('keydown', (e) => {
+            const active = document.activeElement;
+            const isInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT');
+
+            if (e.key === 'Escape') {
+                document.getElementById('shortcutModal').classList.remove('open');
+                if (notifOpen) { notifOpen = false; document.getElementById('notifDropdown').classList.remove('open'); }
+                return;
+            }
+            if (!isInput && e.key === '/') {
+                e.preventDefault();
+                document.getElementById('globalSearch').focus();
+                return;
+            }
+            if (!isInput && e.key === '?') {
+                e.preventDefault();
+                toggleShortcuts();
+                return;
+            }
+            if (!isInput && e.ctrlKey && e.shiftKey && e.key === 'D') {
+                e.preventDefault();
+                toggleDarkMode();
+                return;
+            }
+            if (!isInput && e.key === 'g') {
+                goBuffer = 'g';
+                clearTimeout(goTimer);
+                goTimer = setTimeout(() => goBuffer = '', 1000);
+                return;
+            }
+            if (!isInput && goBuffer === 'g') {
+                const map = { 'd': 'dashboard', 'a': 'attendance', 'm': 'menu', 'h': 'donations', 's': 'sustainability', 'c': 'chat' };
+                if (map[e.key]) {
+                    const navItem = Array.from(document.querySelectorAll('.nav-item')).find(el => el.getAttribute('onclick') && el.getAttribute('onclick').includes(map[e.key]));
+                    if (navItem) navItem.click();
+                    goBuffer = '';
+                    clearTimeout(goTimer);
+                }
+            }
+        });
     </script>
 </body>
 

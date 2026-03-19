@@ -5,10 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Access | Mess OS</title>
+    <meta name="description"
+        content="Mess OS — AI-powered food management & surplus redistribution platform for institutions.">
 
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/shared.css">
 
     <style>
         :root {
@@ -714,6 +718,164 @@
                 align-items: flex-start;
             }
         }
+
+        /* === Animated Stats Ticker === */
+        .stats-ticker {
+            margin-top: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .stats-ticker-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 4px;
+        }
+
+        .stat-ticker-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideInLeft 0.6s var(--anim-speed) both;
+        }
+
+        .stat-ticker-row:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .stat-ticker-row:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .stat-ticker-row:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .stat-ticker-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+            flex-shrink: 0;
+        }
+
+        .stat-ticker-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .stat-ticker-label {
+            font-size: 0.72rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .stat-ticker-bar-wrap {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 99px;
+            margin-top: 4px;
+            overflow: hidden;
+        }
+
+        .stat-ticker-bar {
+            height: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, var(--primary), #818cf8);
+            transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stat-ticker-value {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: white;
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* === System Status === */
+        .sys-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 28px;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+        }
+
+        .sys-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+            animation: sysPulse 2s infinite;
+        }
+
+        @keyframes sysPulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        .sys-status-text {
+            font-size: 0.72rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .sys-status-text strong {
+            color: #10b981;
+        }
+
+        /* Canvas particle bg */
+        #particle-canvas {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            opacity: 0.4;
+        }
+
+        .visual-glass-panel {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Transition for visual text */
+        #visualTitle,
+        #visualDesc {
+            transition: opacity 0.3s ease;
+        }
     </style>
 </head>
 
@@ -739,6 +901,9 @@
         <div class="login-wrapper">
 
             <div class="visual-side">
+                <!-- Dynamic Particle Canvas -->
+                <canvas id="particle-canvas"></canvas>
+
                 <div class="visual-glass-panel">
                     <div class="visual-content">
                         <h1 id="visualTitle">Mess Admin<br>Pro</h1>
@@ -747,9 +912,56 @@
                     </div>
 
                     <div class="feature-pills">
-                        <div class="pill"><i class="fa-solid fa-chart-line"></i> Predictive AI</div>
-                        <div class="pill"><i class="fa-solid fa-shield-halved"></i> SOC 2 Certified</div>
+                        <div class="pill"><i class="fa-solid fa-brain"></i> Predictive AI</div>
+                        <div class="pill"><i class="fa-solid fa-shield-halved"></i> Enterprise Grade</div>
                         <div class="pill"><i class="fa-solid fa-bolt"></i> Real-time Sync</div>
+                        <div class="pill"><i class="fa-solid fa-leaf"></i> ESG Tracked</div>
+                    </div>
+
+                    <!-- Live Stats Ticker -->
+                    <div class="stats-ticker">
+                        <p class="stats-ticker-title">Platform Metrics</p>
+                        <div class="stat-ticker-row">
+                            <div class="stat-ticker-icon"><i class="fa-solid fa-utensils"></i></div>
+                            <div class="stat-ticker-body">
+                                <div class="stat-ticker-label">Meals Saved This Month</div>
+                                <div class="stat-ticker-bar-wrap">
+                                    <div class="stat-ticker-bar" style="width:78%"></div>
+                                </div>
+                            </div>
+                            <span class="stat-ticker-value" id="tkr-meals">12,480</span>
+                        </div>
+                        <div class="stat-ticker-row">
+                            <div class="stat-ticker-icon"><i class="fa-solid fa-weight-hanging"></i></div>
+                            <div class="stat-ticker-body">
+                                <div class="stat-ticker-label">Food Waste Avoided (kg)</div>
+                                <div class="stat-ticker-bar-wrap">
+                                    <div class="stat-ticker-bar"
+                                        style="width:63%; background: linear-gradient(90deg,#10b981,#34d399)"></div>
+                                </div>
+                            </div>
+                            <span class="stat-ticker-value" id="tkr-waste">4,992</span>
+                        </div>
+                        <div class="stat-ticker-row">
+                            <div class="stat-ticker-icon"><i class="fa-solid fa-cloud"></i></div>
+                            <div class="stat-ticker-body">
+                                <div class="stat-ticker-label">CO₂ Prevented (kg eq.)</div>
+                                <div class="stat-ticker-bar-wrap">
+                                    <div class="stat-ticker-bar"
+                                        style="width:55%; background: linear-gradient(90deg,#06b6d4,#67e8f9)"></div>
+                                </div>
+                            </div>
+                            <span class="stat-ticker-value" id="tkr-co2">12,480</span>
+                        </div>
+                    </div>
+
+                    <!-- System Status -->
+                    <div class="sys-status">
+                        <div class="sys-dot"></div>
+                        <span class="sys-status-text">All systems <strong>operational</strong> — v2.4.1</span>
+                        <span
+                            style="margin-left: auto; font-size: 0.68rem; color: #334155; font-family: 'JetBrains Mono', monospace;">99.98%
+                            uptime</span>
                     </div>
                 </div>
             </div>
@@ -918,11 +1130,11 @@
     </main>
 
     <footer class="bottom-footer">
-        <div class="footer-copy">© 2026 Mess OS </div>
+        <div class="footer-copy">© 2026 Mess OS · Built with ♥ at Bennett University</div>
         <div class="footer-links">
             <a href="#">Privacy Policy</a>
             <a href="#">Terms of Service</a>
-            <a href="#">Cookie Preferences</a>
+            <a href="#">Security</a>
         </div>
     </footer>
 
@@ -1015,6 +1227,85 @@
         if (urlParams.has('success')) {
             document.getElementById('successBox').classList.add('show');
         }
+
+        // === Particle Canvas Background ===
+        (function initParticles() {
+            const canvas = document.getElementById('particle-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            const COUNT = 40;
+
+            function resize() {
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            for (let i = 0; i < COUNT; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    r: Math.random() * 1.8 + 0.4,
+                    dx: (Math.random() - 0.5) * 0.35,
+                    dy: (Math.random() - 0.5) * 0.35,
+                    alpha: Math.random() * 0.5 + 0.2
+                });
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(148, 163, 184, ${p.alpha})`;
+                    ctx.fill();
+
+                    p.x += p.dx; p.y += p.dy;
+                    if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+                    if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+                });
+                // Draw connecting lines
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 100) {
+                            ctx.beginPath();
+                            ctx.strokeStyle = `rgba(148, 163, 184, ${0.08 * (1 - dist / 100)})`;
+                            ctx.lineWidth = 0.5;
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+                requestAnimationFrame(draw);
+            }
+            draw();
+        })();
+
+        // === Live Ticker Count-up ===
+        (function animateCounters() {
+            const targets = [
+                { id: 'tkr-meals', end: 12480, suffix: '' },
+                { id: 'tkr-waste', end: 4992, suffix: '' },
+                { id: 'tkr-co2', end: 12480, suffix: '' }
+            ];
+            targets.forEach(({ id, end, suffix }) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                let current = 0;
+                const step = end / 60;
+                const timer = setInterval(() => {
+                    current = Math.min(current + step, end);
+                    el.textContent = Math.floor(current).toLocaleString() + suffix;
+                    if (current >= end) clearInterval(timer);
+                }, 25);
+            });
+        })();
     </script>
 </body>
 

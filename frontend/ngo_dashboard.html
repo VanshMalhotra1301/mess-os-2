@@ -4,9 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NGO Command Center | Feeding India</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>NGO Command Center | SmartMess AI</title>
+    <meta name="description" content="NGO Command Center — Real-time surplus food rescue & impact analytics.">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/shared.css">
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
@@ -987,6 +991,107 @@
         .marker-pin.hub .marker-icon {
             color: var(--secondary);
         }
+
+        /* --- DARK MODE --- */
+        body.dark-mode {
+            --bg-body: #0b0f19;
+            --surface: #141921;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: #1e293b;
+            --secondary: #080c14;
+        }
+
+        body.dark-mode .card {
+            background: var(--surface);
+            border-color: var(--border);
+        }
+
+        body.dark-mode input {
+            background: #1a2233;
+            border-color: var(--border);
+            color: var(--text-main);
+        }
+
+        body.dark-mode .feed-item {
+            background: #141921;
+            border-color: var(--border);
+        }
+
+        body.dark-mode .chat-messages {
+            background: #0d1117;
+        }
+
+        body.dark-mode .chat-msg.admin {
+            background: #1a2233;
+            border-color: var(--border);
+            color: var(--text-main);
+        }
+
+        body.dark-mode .chat-input-area {
+            background: #141921;
+            border-color: var(--border);
+        }
+
+        body.dark-mode .chat-input-area input {
+            background: #1a2233;
+        }
+
+        body.dark-mode .table-container th {
+            background: #1a2233;
+            color: var(--text-muted);
+            border-color: var(--border);
+        }
+
+        body.dark-mode .table-container td {
+            border-color: var(--border);
+            color: var(--text-main);
+        }
+
+        body.dark-mode .counter-card {
+            background: var(--surface);
+            border-color: var(--border);
+        }
+
+        /* Header Action Buttons */
+        .hdr-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 14px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .hdr-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .notif-badge-ngo {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 14px;
+            height: 14px;
+            background: var(--danger);
+            border-radius: 50%;
+            font-size: 8px;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--secondary);
+        }
     </style>
 </head>
 
@@ -1030,20 +1135,39 @@
 
         <header class="header">
             <div>
-                <h1>Command Center</h1>
+                <h1>NGO Command Center</h1>
                 <p>Zone A Distribution • <span style="color:var(--primary); font-weight:600;">Live Operations</span></p>
             </div>
-            <div style="display: flex; align-items: center; gap: 24px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
                 <span id="clock"
-                    style="font-weight: 600; color: var(--text-muted); font-variant-numeric: tabular-nums;">12:00
+                    style="font-weight: 600; color: var(--text-muted); font-variant-numeric: tabular-nums; font-family: 'JetBrains Mono', monospace; font-size:0.85rem;">12:00
                     PM</span>
                 <div class="status-badge" id="connStatus">
                     <div class="dot"></div>
                     <span id="connText">Connecting...</span>
                 </div>
+
+                <!-- Dark Mode Toggle -->
+                <button class="hdr-btn" id="ngoDarkToggle" onclick="ngoToggleDark()" title="Toggle Dark Mode">
+                    <i class="fa-solid fa-moon" id="ngoDarkIcon"></i>
+                </button>
+
+                <!-- Notification Bell -->
+                <div style="position:relative;">
+                    <button class="hdr-btn" onclick="alert('No new notifications')" title="Notifications">
+                        <i class="fa-solid fa-bell"></i>
+                        <span class="notif-badge-ngo">2</span>
+                    </button>
+                </div>
+
+                <!-- Avatar / Logout -->
+                <a href="/logout" class="hdr-btn" title="Logout" style="font-size:15px; color:#94a3b8;">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </a>
+
                 <div
-                    style="width: 40px; height: 40px; background: var(--secondary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size:0.9rem;">
-                    ZM</div>
+                    style="width: 36px; height: 36px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size:0.85rem;">
+                    NGO</div>
             </div>
         </header>
 
@@ -1844,6 +1968,29 @@
             loadAnalytics();
             updateImpactCounters(0);
         }
+    </script>
+
+    <script>
+        // ==== NGO DARK MODE ====
+        function ngoToggleDark() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            const icon = document.getElementById('ngoDarkIcon');
+            if (icon) icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            localStorage.setItem('mess_dark_mode', isDark ? '1' : '0');
+        }
+        // Apply on load (shared preference with admin)
+        if (localStorage.getItem('mess_dark_mode') === '1') {
+            document.body.classList.add('dark-mode');
+            const icon = document.getElementById('ngoDarkIcon');
+            if (icon) icon.className = 'fa-solid fa-sun';
+        }
+        // Keyboard: Ctrl+Shift+D = toggle dark
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+                e.preventDefault();
+                ngoToggleDark();
+            }
+        });
     </script>
 </body>
 

@@ -11,11 +11,15 @@ load_dotenv()
 app = Flask(
     __name__,
     template_folder="frontend",
-    static_folder="frontend"
+    static_folder="frontend/static",
+    static_url_path="/static"
 )
 
 # Secret key for sessions
-app.config["SECRET_KEY"] = "supersecretkey"
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "supersecretkey")
+
+# Backend URL for Frontend Communication
+BACKEND_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
 
 # -------------------------
 # DATABASE CONFIG (Supabase PostgreSQL)
@@ -75,6 +79,10 @@ def clean_and_init_db():
 # -------------------------
 # ROUTES
 # -------------------------
+
+@app.context_processor
+def inject_globals():
+    return dict(BACKEND_URL=BACKEND_URL)
 
 @app.route("/")
 def home():

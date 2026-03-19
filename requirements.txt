@@ -1,0 +1,15 @@
+flask
+flask-sqlalchemy
+psycopg2-binary
+python-dotenv
+werkzeug
+gunicorn
+fastapi
+uvicorn[standard]
+sqlalchemy
+pydantic
+pandas
+numpy
+websockets
+python-multipart
+pickle5; python_version < "3.8"
