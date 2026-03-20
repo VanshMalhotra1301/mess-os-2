@@ -1,6 +1,10 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Text
 from sqlalchemy.sql import func
-from database import Base
+try:
+    from backend.database import Base
+except ImportError:
+    from database import Base
+
 
 # -------------------------
 # USER & PROFILES

@@ -15,7 +15,7 @@
     <script>
         const CURRENT_MESS_ID = {{ user_id }};
         const CURRENT_ORG_NAME = "{{ org_name }}";
-        const BACKEND_URL = "{{ BACKEND_URL }}";
+        const BACKEND_URL = "{{ BACKEND_URL }}".endsWith('/') ? "{{ BACKEND_URL }}" : "{{ BACKEND_URL }}/";
     </script>
     <style>
         :root {
@@ -2750,7 +2750,7 @@
 
         async function loadMenuData() {
             try {
-                const res = await fetch('http://127.0.0.1:8000/api/menu/' + CURRENT_MESS_ID);
+                const res = await fetch(BACKEND_URL + 'api/menu/' + CURRENT_MESS_ID);
                 if (res.ok) {
                     const data = await res.json();
                     weeklyMenu = data.menu_data || {};
@@ -2861,7 +2861,7 @@
             });
 
             try {
-                const res = await fetch('http://127.0.0.1:8000/api/menu', {
+                const res = await fetch(BACKEND_URL + 'api/menu', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -2976,7 +2976,7 @@
 
         async function checkServer() {
             try {
-                const res = await fetch('http://127.0.0.1:8000/');
+                const res = await fetch(BACKEND_URL + '');
                 if (res.ok) {
                     const statusBadge = document.getElementById('connStatus');
                     const statusText = document.getElementById('connText');
@@ -3014,7 +3014,7 @@
             if (el) el.textContent = dateLabel;
 
             try {
-                const res = await fetch('http://127.0.0.1:8000/api/dashboard-summary?mess_id=' + CURRENT_MESS_ID);
+                const res = await fetch(BACKEND_URL + 'api/dashboard-summary?mess_id=' + CURRENT_MESS_ID);
                 const d = await res.json();
 
                 // KPI: Today's Actual Attendance
@@ -3120,7 +3120,7 @@
             document.getElementById('aiDisplay').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
 
             try {
-                const response = await fetch('http://127.0.0.1:8000/api/predict-item-analysis', {
+                const response = await fetch(BACKEND_URL + 'api/predict-item-analysis', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -3226,7 +3226,7 @@
             const expiryTime = `${hours}:${mins}`;
 
             try {
-                const response = await fetch('http://127.0.0.1:8000/api/broadcast-surplus', {
+                const response = await fetch(BACKEND_URL + 'api/broadcast-surplus', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -3282,7 +3282,7 @@
 
         async function saveToLog(date, meal, students, actual) {
             try {
-                const response = await fetch('http://127.0.0.1:8000/api/save-log', {
+                const response = await fetch(BACKEND_URL + 'api/save-log', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -3317,7 +3317,7 @@
             `;
 
             try {
-                const response = await fetch('http://127.0.0.1:8000/api/attendance-logs?mess_id=' + CURRENT_MESS_ID);
+                const response = await fetch(BACKEND_URL + 'api/attendance-logs?mess_id=' + CURRENT_MESS_ID);
                 const logs = await response.json();
                 tableBody.innerHTML = '';
 
@@ -3404,7 +3404,7 @@
             `;
 
             try {
-                const response = await fetch('http://127.0.0.1:8000/api/broadcast-history?mess_id=' + CURRENT_MESS_ID);
+                const response = await fetch(BACKEND_URL + 'api/broadcast-history?mess_id=' + CURRENT_MESS_ID);
                 const logs = await response.json();
                 tableBody.innerHTML = '';
 
@@ -3472,7 +3472,7 @@
 
         async function loadSustainabilityMetrics() {
             try {
-                const response = await fetch('http://127.0.0.1:8000/api/sustainability-metrics?mess_id=' + CURRENT_MESS_ID);
+                const response = await fetch(BACKEND_URL + 'api/sustainability-metrics?mess_id=' + CURRENT_MESS_ID);
                 const data = await response.json();
 
                 // Update KPIs
@@ -3548,7 +3548,7 @@
             const container = document.getElementById('ngoChecklistContainer');
             if (!container) return;
             try {
-                const res = await fetch('http://127.0.0.1:8000/api/ngos');
+                const res = await fetch(BACKEND_URL + 'api/ngos');
                 availableNGOs = await res.json();
                 if (availableNGOs.length === 0) {
                     container.innerHTML = '<div style="text-align:center; color:var(--text-muted); font-size:13px; padding:16px;"><i class="fa-solid fa-building-ngo" style="display:block; font-size:24px; margin-bottom:8px; opacity:0.3;"></i>No NGOs registered yet</div>';
@@ -3607,7 +3607,7 @@
             log(`Broadcasting surplus: ${qty}kg to ${ngo_ids.length > 0 ? ngo_ids.length + ' NGO(s)' : 'all NGOs'}...`, 'info');
 
             try {
-                const response = await fetch('http://127.0.0.1:8000/api/broadcast-surplus', {
+                const response = await fetch(BACKEND_URL + 'api/broadcast-surplus', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -3643,7 +3643,7 @@
 
         async function loadBroadcastHistory() {
             try {
-                const res = await fetch('http://127.0.0.1:8000/api/broadcast-history?mess_id=' + CURRENT_MESS_ID);
+                const res = await fetch(BACKEND_URL + 'api/broadcast-history?mess_id=' + CURRENT_MESS_ID);
                 const history = await res.json();
                 const logBox = document.getElementById('sysLog');
                 // We append to existing dashboard logs, don't clear all (visual pref)
@@ -3714,7 +3714,7 @@
 
         async function loadAccuracyChart() {
             try {
-                const res = await fetch('http://127.0.0.1:8000/api/analytics/menu-attendance?mess_id=' + CURRENT_MESS_ID);
+                const res = await fetch(BACKEND_URL + 'api/analytics/menu-attendance?mess_id=' + CURRENT_MESS_ID);
                 allMenuAttendanceData = await res.json();
                 renderAccuracyChart(allMenuAttendanceData);
                 calculateMenuPopularity(allMenuAttendanceData);
@@ -4057,7 +4057,7 @@
             const contactListEl = document.getElementById('ngoContactList');
             if (!contactListEl) return;
             try {
-                const res = await fetch('http://127.0.0.1:8000/api/ngos');
+                const res = await fetch(BACKEND_URL + 'api/ngos');
                 const ngos = await res.json();
                 if (ngos.length === 0) {
                     contactListEl.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:13px;">No NGOs registered yet.</div>';

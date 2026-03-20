@@ -22,6 +22,7 @@
     <script>
         const CURRENT_NGO_ID = {{ user_id }};
         const CURRENT_NGO_NAME = "{{ ngo_name }}";
+        const BACKEND_URL = "{{ BACKEND_URL }}".endsWith('/') ? "{{ BACKEND_URL }}" : "{{ BACKEND_URL }}/";
     </script>
     <style>
         :root {
@@ -1612,7 +1613,7 @@
         async function loadHistory() {
             const tbody = document.getElementById('historyTableBody');
             try {
-                const res = await fetch('http://127.0.0.1:8000/api/ngo/history?ngo_id=' + CURRENT_NGO_ID);
+                const res = await fetch(BACKEND_URL + 'api/ngo/history?ngo_id=' + CURRENT_NGO_ID);
                 const data = await res.json();
                 tbody.innerHTML = '';
 
@@ -1689,7 +1690,7 @@
 
         async function loadAnalytics() {
             try {
-                const res = await fetch('http://127.0.0.1:8000/api/ngo/analytics?ngo_id=' + CURRENT_NGO_ID);
+                const res = await fetch(BACKEND_URL + 'api/ngo/analytics?ngo_id=' + CURRENT_NGO_ID);
                 const data = await res.json();
 
                 // 1. Update Text
@@ -1836,7 +1837,7 @@
             const listEl = document.getElementById('messContactList');
             if (!listEl) return;
             try {
-                const res = await fetch('http://127.0.0.1:8000/api/messes');
+                const res = await fetch(BACKEND_URL + 'api/messes');
                 const messes = await res.json();
                 if (messes.length === 0) {
                     listEl.innerHTML = '<div style="text-align:center; padding:20px; color:var(--secondary); font-size:13px;">No mess organizations registered yet.</div>';
@@ -1887,7 +1888,7 @@
 
         async function fetchAvailableMesses() {
             try {
-                const res = await fetch('http://127.0.0.1:8000/api/messes');
+                const res = await fetch(BACKEND_URL + 'api/messes');
                 const messes = await res.json();
                 if (messes && messes.length > 0) {
                     CURRENT_MESS_ID = messes[0].id;
@@ -1900,7 +1901,7 @@
         async function loadChatHistory() {
             if (!CURRENT_MESS_ID) return;
             try {
-                const res = await fetch('http://127.0.0.1:8000/api/chat-history?mess_id=' + CURRENT_MESS_ID + '&ngo_id=' + CURRENT_NGO_ID);
+                const res = await fetch(BACKEND_URL + 'api/chat-history?mess_id=' + CURRENT_MESS_ID + '&ngo_id=' + CURRENT_NGO_ID);
                 const msgs = await res.json();
                 const container = document.getElementById('chatMessages');
                 container.innerHTML = '';
@@ -1940,7 +1941,7 @@
             if (!text) return;
             input.value = '';
             try {
-                await fetch('http://127.0.0.1:8000/api/chat', {
+                await fetch(BACKEND_URL + 'api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
