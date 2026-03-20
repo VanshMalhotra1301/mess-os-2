@@ -67,6 +67,12 @@ class NGOProfile(db.Model):
     service_radius = db.Column(db.Float)
     description = db.Column(db.Text)
 
+class WeeklyMenu(db.Model):
+    __tablename__ = "weekly_menus"
+    id = db.Column(db.Integer, primary_key=True)
+    mess_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), unique=True, nullable=False)
+    menu_data = db.Column(db.Text, nullable=False)
+
 # -------------------------
 # SYSTEM INITIALIZATION
 # -------------------------
@@ -74,6 +80,85 @@ def clean_and_init_db():
     # Only run this once to clean the system for the multi-org architecture
     # db.drop_all() # We will do this via a separate script to be safe
     db.create_all()
+
+    # Seed Vanshmalhotra user
+    user = User.query.filter_by(email="vanshmalhotra4321@gmail.com").first()
+    if not user:
+        user = User(
+            email="vanshmalhotra4321@gmail.com",
+            password=generate_password_hash("1111"),
+            role="admin"
+        )
+        db.session.add(user)
+        db.session.commit()
+        
+        # Add a default profile
+        profile = MessProfile(
+            user_id=user.id,
+            admin_name="Vansh Malhotra",
+            org_name="Bennett University Mess",
+            org_type="University",
+            capacity=1500,
+            contact_phone="9999999999",
+            location="Greater Noida"
+        )
+        db.session.add(profile)
+        db.session.commit()
+
+    # Ensure this user has the default menu
+    menu = WeeklyMenu.query.filter_by(mess_id=user.id).first()
+    if not menu:
+        import json
+        default_menu = {
+            "Friday": {
+                "Breakfast": ["Indori Poha - (130 Kcal)", "Green Chutney-(90Kcal)", "egg bhurji (185Kcal)", "Mix Fruits - (57 Kcal)", "masala Sprouts- (45 Kcal)", "Jam- (276 Kcal), Brown- (282 Kcal) & White Bread- (302 Kcal)", "Milk- (59 Kcal)/Tea- (30 Kcal)/Coffee- (30 Kcal)"],
+                "Lunch": ["Paneer Lababdar- (185 Kcal)", "Khata Mitha Sitafal- (135Kcal)", "Red Masoor- (278 Kcal)", "Jeera Rice- (184 Kcal)", "Sambar- (133 Kcal)", "Roti- (280 Kcal)", "Carrot Beetroot-(80 Kcal)", "Curd- (78 Kcal)"],
+                "Snack": ["Aloo papdi chaat", "Sweet-(120 Kcal) & Green Chutney(90Kcal)", "Tea- (30 Kcal)", "Tang- (54 Kcal)"],
+                "Dinner": ["Aloo Capsicum -(80 Kcal)", "baingan bharta- (188 Kcal)", "Hariyali Dal-(149 Kcal)", "Steamed Rice- (130 Kcal)", "Roti- (280 Kcal)", "fruit custard", "Shirka Onion- (68 Kcal)", "Veg Clear Soup- (39 Kcal)"]
+            },
+            "Monday": {
+                "Breakfast": ["Aloo Paratha - (180 Kcal)", "Curd - (98 Kcal)", "Mix Pickle - (25 Kcal)", "Sweet Corn - (120 Kcal)", "Bread & Butter - (210 Kcal)", "Tea/Coffee - (30 Kcal)"],
+                "Lunch": ["Rajma Masala - (240 Kcal)", "Jeera Rice - (180 Kcal)", "Aloo Gobhi - (140 Kcal)", "Roti - (280 Kcal)", "Green Salad - (45 Kcal)", "Boondi Raita - (110 Kcal)"],
+                "Snack": ["Samosa (1 pc) - (260 Kcal)", "Imli Chutney - (45 Kcal)", "Tea - (30 Kcal)", "Biscuits - (80 Kcal)"],
+                "Dinner": ["Mix Veg - (160 Kcal)", "Dal Tadka - (185 Kcal)", "Rice - (130 Kcal)", "Roti - (280 Kcal)", "Gulab Jamun - (140 Kcal)"]
+            },
+            "Tuesday": {
+                "Breakfast": ["Idli (2 pcs) - (120 Kcal)", "Sambar - (140 Kcal)", "Coconut Chutney - (80 Kcal)", "Vada - (150 Kcal)", "Fruits - (60 Kcal)", "Tea/Coffee - (30 Kcal)"],
+                "Lunch": ["Kadi Pakoda - (210 Kcal)", "Steamed Rice - (130 Kcal)", "Bhindi Masala - (110 Kcal)", "Roti - (280 Kcal)", "Papad - (45 Kcal)"],
+                "Snack": ["Red Sauce Pasta - (220 Kcal)", "Cold Coffee - (140 Kcal)"],
+                "Dinner": ["Egg Curry - (210 Kcal)", "Aloo Matar - (140 Kcal)", "Rice - (130 Kcal)", "Roti - (280 Kcal)", "Sewaiyan - (180 Kcal)"]
+            },
+            "Wednesday": {
+                "Breakfast": ["Puri Bhaji - (320 Kcal)", "Sooji Halwa - (210 Kcal)", "Chana Masala - (160 Kcal)", "Pickle - (20 Kcal)", "Tea/Coffee - (30 Kcal)"],
+                "Lunch": ["Chole Bhature - (450 Kcal)", "Sweet Lassi - (180 Kcal)", "Onion Salad - (30 Kcal)", "Fried Chilli - (10 Kcal)"],
+                "Snack": ["Bread Pakoda - (240 Kcal)", "Tomato Ketchup - (20 Kcal)", "Tea - (30 Kcal)"],
+                "Dinner": ["Veg Biryani - (290 Kcal)", "Mirchi Ka Salan - (140 Kcal)", "Mix Raita - (80 Kcal)", "Moong Dal Halwa - (250 Kcal)"]
+            },
+            "Thursday": {
+                "Breakfast": ["Veg Upma - (160 Kcal)", "Coconut Chutney - (80 Kcal)", "Boiled Egg - (75 Kcal)", "Toast - (90 Kcal)", "Juice - (110 Kcal)"],
+                "Lunch": ["Dal Makhani - (320 Kcal)", "Butter Naan - (210 Kcal)", "Paneer Tikka - (180 Kcal)", "Jeera Rice - (180 Kcal)", "Salad - (40 Kcal)"],
+                "Snack": ["Veg Maggi - (210 Kcal)", "Frooti - (120 Kcal)"],
+                "Dinner": ["Malai Kofta - (280 Kcal)", "Yellow Dal - (140 Kcal)", "Rice - (130 Kcal)", "Paratha - (180 Kcal)", "Ice Cream - (150 Kcal)"]
+            },
+            "Saturday": {
+                "Breakfast": ["Poha Jalebi - (280 Kcal)", "Sev - (45 Kcal)", "Fruits - (60 Kcal)", "Tea/Coffee - (30 Kcal)"],
+                "Lunch": ["Kashmiri Dum Aloo - (190 Kcal)", "Peas Pulao - (160 Kcal)", "Dal Fry - (150 Kcal)", "Roti - (280 Kcal)", "Salad - (40 Kcal)"],
+                "Snack": ["Pav Bhaji - (320 Kcal)", "Lemonade - (90 Kcal)"],
+                "Dinner": ["Paneer Butter Masala - (260 Kcal)", "Naan - (190 Kcal)", "Jeera Rice - (180 Kcal)", "Dal Makhani - (320 Kcal)", "Rasgulla - (150 Kcal)"]
+            },
+            "Sunday": {
+                "Breakfast": ["Masala Dosa - (250 Kcal)", "Sambar - (140 Kcal)", "Coconut Chutney - (80 Kcal)", "Tea/Coffee - (30 Kcal)"],
+                "Lunch": ["Veg Pulao - (210 Kcal)", "Paneer Kurma - (180 Kcal)", "Roti - (280 Kcal)", "Boondi Raita - (110 Kcal)", "Papad - (45 Kcal)"],
+                "Snack": ["Bhel Puri - (180 Kcal)", "Tea - (30 Kcal)"],
+                "Dinner": ["Palak Paneer - (220 Kcal)", "Dal Tadka - (185 Kcal)", "Rice - (130 Kcal)", "Roti - (280 Kcal)", "Kheer - (210 Kcal)"]
+            }
+        }
+        menu = WeeklyMenu(
+            mess_id=user.id,
+            menu_data=json.dumps(default_menu)
+        )
+        db.session.add(menu)
+        db.session.commit()
 
 
 # -------------------------

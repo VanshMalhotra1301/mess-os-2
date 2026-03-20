@@ -12,7 +12,7 @@ from fastapi.responses import StreamingResponse
 
 # --- IMPORTS ---
 from database import get_db, engine
-from models import Base, SurplusPost, SurplusRecipient, AttendanceRecord, ChatMessage
+from models import Base, SurplusPost, SurplusRecipient, AttendanceRecord, ChatMessage, WeeklyMenu
 from websocket_manager import manager
 from ai_engine.predictor import predictor 
 
@@ -33,7 +33,11 @@ app.add_middleware(
 )
 
 # --- PYDANTIC MODELS (Data Validation) ---
-from typing import Optional
+from typing import Optional, List, Dict, Any
+
+class MenuRequest(BaseModel):
+    mess_id: int
+    menu_data: Dict[str, Any]
 
 class PredictionRequest(BaseModel):
     mess_id: int
@@ -130,6 +134,28 @@ def save_log(request: LogRequest, db: Session = Depends(get_db)):
 def get_logs(mess_id: int, db: Session = Depends(get_db)):
     logs = db.query(AttendanceRecord).filter(AttendanceRecord.mess_id == mess_id).order_by(AttendanceRecord.id.desc()).limit(50).all()
     return logs
+
+# --- NEW ENDPOINTS: Menu Management ---
+import json
+
+@app.get("/api/menu/{mess_id}")
+def get_menu(mess_id: int, db: Session = Depends(get_db)):
+    menu = db.query(WeeklyMenu).filter(WeeklyMenu.mess_id == mess_id).first()
+    if menu:
+        return {"status": "success", "menu_data": json.loads(menu.menu_data)}
+    else:
+        raise HTTPException(status_code=404, detail="Menu not found")
+
+@app.post("/api/menu")
+def save_menu(req: MenuRequest, db: Session = Depends(get_db)):
+    menu = db.query(WeeklyMenu).filter(WeeklyMenu.mess_id == req.mess_id).first()
+    if menu:
+        menu.menu_data = json.dumps(req.menu_data)
+    else:
+        new_menu = WeeklyMenu(mess_id=req.mess_id, menu_data=json.dumps(req.menu_data))
+        db.add(new_menu)
+    db.commit()
+    return {"status": "success"}
 
 # 4. Analytics Endpoint
 @app.get("/api/analytics/waste-trend")

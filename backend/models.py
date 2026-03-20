@@ -33,6 +33,12 @@ class NGOProfile(Base):
     service_radius = Column(Float)
     description = Column(Text)
 
+class WeeklyMenu(Base):
+    __tablename__ = "weekly_menus"
+    id = Column(Integer, primary_key=True, index=True)
+    mess_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True)
+    menu_data = Column(Text)
+
 # -------------------------
 # DATA MODELS
 # -------------------------

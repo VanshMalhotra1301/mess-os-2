@@ -1256,6 +1256,27 @@
             color: #5b21b6;
         }
 
+        .menu-tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .menu-tab-btn:hover {
+            color: var(--primary);
+        }
+
+        .menu-tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
         .panel-stat-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -2239,8 +2260,13 @@
             <div id="menu" class="section-view">
                 <div class="card">
                     <div class="card-header">
-                        <div>
+                        <div style="display:flex; align-items:center; gap:12px;">
                             <h2 style="font-size:20px; font-weight:700;" id="menuDayTitle">Menu Planning</h2>
+                            <button class="btn"
+                                style="padding:4px 10px; font-size:12px; background:var(--primary-light); color:var(--primary); box-shadow:none;"
+                                onclick="openMenuRegistrationModal(true)">
+                                <i class="fa-solid fa-pen" style="margin-right:4px;"></i>Edit
+                            </button>
                         </div>
                         <input type="date" id="menuDateSelect" onchange="updateMenuDisplay()" style="width:auto;">
                     </div>
@@ -2394,7 +2420,7 @@
 
                     <!-- Left: NGO Contact List -->
                     <div
-                        style="width:260px; flex-shrink:0; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; display:flex; flex-direction:column; background:#fff;">
+                        style="width:260px; flex-shrink:0; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; display:flex; flex-direction:column; background:var(--bg-surface);">
                         <div
                             style="padding:16px 20px; border-bottom:1px solid var(--border); background:var(--primary); color:white;">
                             <h3 style="font-size:14px; font-weight:700; margin-bottom:2px;"><i
@@ -2409,10 +2435,10 @@
 
                     <!-- Right: Chat Window -->
                     <div
-                        style="flex:1; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; display:flex; flex-direction:column; background:#fff;">
+                        style="flex:1; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; display:flex; flex-direction:column; background:var(--bg-surface);">
                         <!-- Chat Header -->
                         <div id="chatHeader"
-                            style="padding:14px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; background:#fafafa;">
+                            style="padding:14px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; background:var(--bg-body);">
                             <div
                                 style="width:36px; height:36px; border-radius:50%; background:var(--primary-light); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:16px;">
                                 <i class="fa-solid fa-building-ngo"></i>
@@ -2472,11 +2498,60 @@
         </div>
     </div>
 
+    <!-- Menu Registration Modal -->
+    <div id="menuRegModalOverlay"
+        style="display:none; position:fixed; inset:0; background:rgba(15, 23, 42, 0.75); backdrop-filter:blur(6px); z-index:10000; align-items:center; justify-content:center; opacity:0; transition:opacity 0.3s ease;">
+        <div id="menuRegModal"
+            style="background:var(--bg-surface); width:95%; max-width:700px; max-height:90vh; border-radius:16px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 25px 50px -12px rgba(0, 0, 0, 0.5); transform:scale(0.95); transition:all 0.3s ease; border: 1px solid var(--border);">
+            <div
+                style="padding:20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--bg-body);">
+                <div>
+                    <h3 style="font-size:18px; font-weight:800; color:var(--text-main); margin:0;">Configure Weekly Menu
+                    </h3>
+                    <p style="font-size:12px; color:var(--text-muted); margin:4px 0 0 0;">Enter meal items separated by
+                        commas</p>
+                </div>
+                <button id="menuRegCloseBtn" class="panel-close-btn"
+                    style="display:none; position:relative; right:0; top:0; background:none; border:none; color:var(--text-muted); cursor:pointer;"
+                    onclick="closeMenuRegistrationModal()">
+                    <i class="fa-solid fa-xmark" style="font-size:20px;"></i>
+                </button>
+            </div>
+
+            <!-- Day Tabs -->
+            <div style="display:flex; overflow-x:auto; padding:0 20px; border-bottom:1px solid var(--border); background:var(--bg-surface);"
+                id="menuRegTabs">
+                <button class="menu-tab-btn active" onclick="switchMenuRegTab('Monday', this)">Mon</button>
+                <button class="menu-tab-btn" onclick="switchMenuRegTab('Tuesday', this)">Tue</button>
+                <button class="menu-tab-btn" onclick="switchMenuRegTab('Wednesday', this)">Wed</button>
+                <button class="menu-tab-btn" onclick="switchMenuRegTab('Thursday', this)">Thu</button>
+                <button class="menu-tab-btn" onclick="switchMenuRegTab('Friday', this)">Fri</button>
+                <button class="menu-tab-btn" onclick="switchMenuRegTab('Saturday', this)">Sat</button>
+                <button class="menu-tab-btn" onclick="switchMenuRegTab('Sunday', this)">Sun</button>
+            </div>
+
+            <!-- Inputs Container -->
+            <div style="padding:20px; overflow-y:auto; flex:1; background:var(--bg-body);" id="menuRegForms">
+                <!-- Javascript will generate inputs for each meal per day -->
+            </div>
+
+            <div
+                style="padding:20px; border-top:1px solid var(--border); background:var(--bg-surface); display:flex; justify-content:flex-end; gap:12px;">
+                <button id="menuRegCancelBtn" class="btn"
+                    style="display:none; background:var(--bg-body); color:var(--text-main); box-shadow:none; border: 1px solid var(--border);"
+                    onclick="closeMenuRegistrationModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveMenuRegistration(event)">
+                    <i class="fa-solid fa-check" style="margin-right:6px;"></i> Save Weekly Menu
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- AI Donation Recommendation Modal -->
     <div id="aiDonationModalOverlay"
         style="display:none; position:fixed; inset:0; background:rgba(15, 23, 42, 0.7); backdrop-filter:blur(6px); z-index:9999; align-items:center; justify-content:center; opacity:0; transition:opacity 0.3s ease;">
         <div id="aiDonationModal"
-            style="background:#ffffff; width:100%; max-width:480px; border-radius:20px; overflow:hidden; box-shadow:0 25px 50px -12px rgba(0, 0, 0, 0.5); transform:scale(0.95) translateY(20px); transition:all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display:flex; flex-direction:column; border: 1px solid rgba(79, 70, 229, 0.2);">
+            style="background:var(--bg-surface); width:100%; max-width:480px; border-radius:20px; overflow:hidden; box-shadow:0 25px 50px -12px rgba(0, 0, 0, 0.5); transform:scale(0.95) translateY(20px); transition:all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display:flex; flex-direction:column; border: 1px solid var(--border);">
 
             <div
                 style="background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); padding: 24px; color: white; position: relative; overflow: hidden;">
@@ -2504,10 +2579,10 @@
                 </p>
 
                 <div
-                    style="background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 24px;">
+                    style="background: var(--bg-body); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 24px;">
                     <div style="display:flex; align-items:flex-start; margin-bottom: 16px;">
                         <div
-                            style="width: 40px; height: 40px; border-radius: 10px; background: #fee2e2; color: var(--danger); display:flex; align-items:center; justify-content:center; font-size:18px; margin-right: 16px; flex-shrink:0;">
+                            style="width: 40px; height: 40px; border-radius: 10px; background: rgba(225, 29, 72, 0.1); color: var(--danger); display:flex; align-items:center; justify-content:center; font-size:18px; margin-right: 16px; flex-shrink:0;">
                             <i class="fa-solid fa-box-open"></i>
                         </div>
                         <div>
@@ -2523,7 +2598,7 @@
 
                     <div style="display:flex; align-items:flex-start;">
                         <div
-                            style="width: 40px; height: 40px; border-radius: 10px; background: #fef3c7; color: #b45309; display:flex; align-items:center; justify-content:center; font-size:18px; margin-right: 16px; flex-shrink:0;">
+                            style="width: 40px; height: 40px; border-radius: 10px; background: rgba(217, 119, 6, 0.1); color: var(--warning); display:flex; align-items:center; justify-content:center; font-size:18px; margin-right: 16px; flex-shrink:0;">
                             <i class="fa-solid fa-hourglass-half"></i>
                         </div>
                         <div>
@@ -2548,7 +2623,8 @@
                 </div>
 
                 <div style="display:flex; gap: 12px;">
-                    <button class="btn" style="flex:1; background: #f1f5f9; color: var(--text-main); font-weight:600;"
+                    <button class="btn"
+                        style="flex:1; background: var(--bg-body); color: var(--text-main); border: 1px solid var(--border); font-weight:600;"
                         onclick="closeAiDonationModal()">
                         Deny (Manual Broadcast)
                     </button>
@@ -2667,50 +2743,151 @@
         // MENU PLANNING DATA
         // ==========================================
 
-        const weeklyMenu = {
-            "Friday": {
-                "Breakfast": ["Indori Poha - (130 Kcal)", "Green Chutney-(90Kcal)", "egg bhurji (185Kcal)", "Mix Fruits - (57 Kcal)", "masala Sprouts- (45 Kcal)", "Jam- (276 Kcal), Brown- (282 Kcal) & White Bread- (302 Kcal)", "Milk- (59 Kcal)/Tea- (30 Kcal)/Coffee- (30 Kcal)"],
-                "Lunch": ["Paneer Lababdar- (185 Kcal)", "Khata Mitha Sitafal- (135Kcal)", "Red Masoor- (278 Kcal)", "Jeera Rice- (184 Kcal)", "Sambar- (133 Kcal)", "Roti- (280 Kcal)", "Carrot Beetroot-(80 Kcal)", "Curd- (78 Kcal)"],
-                "Snack": ["Aloo papdi chaat", "Sweet-(120 Kcal) & Green Chutney(90Kcal)", "Tea- (30 Kcal)", "Tang- (54 Kcal)"],
-                "Dinner": ["Aloo Capsicum -(80 Kcal)", "baingan bharta- (188 Kcal)", "Hariyali Dal-(149 Kcal)", "Steamed Rice- (130 Kcal)", "Roti- (280 Kcal)", "fruit custard", "Shirka Onion- (68 Kcal)", "Veg Clear Soup- (39 Kcal)"]
-            },
-            "Monday": {
-                "Breakfast": ["Aloo Paratha - (180 Kcal)", "Curd - (98 Kcal)", "Mix Pickle - (25 Kcal)", "Sweet Corn - (120 Kcal)", "Bread & Butter - (210 Kcal)", "Tea/Coffee - (30 Kcal)"],
-                "Lunch": ["Rajma Masala - (240 Kcal)", "Jeera Rice - (180 Kcal)", "Aloo Gobhi - (140 Kcal)", "Roti - (280 Kcal)", "Green Salad - (45 Kcal)", "Boondi Raita - (110 Kcal)"],
-                "Snack": ["Samosa (1 pc) - (260 Kcal)", "Imli Chutney - (45 Kcal)", "Tea - (30 Kcal)", "Biscuits - (80 Kcal)"],
-                "Dinner": ["Mix Veg - (160 Kcal)", "Dal Tadka - (185 Kcal)", "Rice - (130 Kcal)", "Roti - (280 Kcal)", "Gulab Jamun - (140 Kcal)"]
-            },
-            "Tuesday": {
-                "Breakfast": ["Idli (2 pcs) - (120 Kcal)", "Sambar - (140 Kcal)", "Coconut Chutney - (80 Kcal)", "Vada - (150 Kcal)", "Fruits - (60 Kcal)", "Tea/Coffee - (30 Kcal)"],
-                "Lunch": ["Kadi Pakoda - (210 Kcal)", "Steamed Rice - (130 Kcal)", "Bhindi Masala - (110 Kcal)", "Roti - (280 Kcal)", "Papad - (45 Kcal)"],
-                "Snack": ["Red Sauce Pasta - (220 Kcal)", "Cold Coffee - (140 Kcal)"],
-                "Dinner": ["Egg Curry - (210 Kcal)", "Aloo Matar - (140 Kcal)", "Rice - (130 Kcal)", "Roti - (280 Kcal)", "Sewaiyan - (180 Kcal)"]
-            },
-            "Wednesday": {
-                "Breakfast": ["Puri Bhaji - (320 Kcal)", "Sooji Halwa - (210 Kcal)", "Chana Masala - (160 Kcal)", "Pickle - (20 Kcal)", "Tea/Coffee - (30 Kcal)"],
-                "Lunch": ["Chole Bhature - (450 Kcal)", "Sweet Lassi - (180 Kcal)", "Onion Salad - (30 Kcal)", "Fried Chilli - (10 Kcal)"],
-                "Snack": ["Bread Pakoda - (240 Kcal)", "Tomato Ketchup - (20 Kcal)", "Tea - (30 Kcal)"],
-                "Dinner": ["Veg Biryani - (290 Kcal)", "Mirchi Ka Salan - (140 Kcal)", "Mix Raita - (80 Kcal)", "Moong Dal Halwa - (250 Kcal)"]
-            },
-            "Thursday": {
-                "Breakfast": ["Veg Upma - (160 Kcal)", "Coconut Chutney - (80 Kcal)", "Boiled Egg - (75 Kcal)", "Toast - (90 Kcal)", "Juice - (110 Kcal)"],
-                "Lunch": ["Dal Makhani - (320 Kcal)", "Butter Naan - (210 Kcal)", "Paneer Tikka - (180 Kcal)", "Jeera Rice - (180 Kcal)", "Salad - (40 Kcal)"],
-                "Snack": ["Veg Maggi - (210 Kcal)", "Frooti - (120 Kcal)"],
-                "Dinner": ["Malai Kofta - (280 Kcal)", "Yellow Dal - (140 Kcal)", "Rice - (130 Kcal)", "Paratha - (180 Kcal)", "Ice Cream - (150 Kcal)"]
-            },
-            "Saturday": {
-                "Breakfast": ["Masala Dosa - (240 Kcal)", "Sambar - (130 Kcal)", "Red Chutney - (70 Kcal)", "Upma - (120 Kcal)", "Tea/Coffee - (30 Kcal)"],
-                "Lunch": ["Dal Khichdi - (180 Kcal)", "Aloo Chokha - (110 Kcal)", "Curd - (78 Kcal)", "Papad - (45 Kcal)", "Pickle - (20 Kcal)"],
-                "Snack": ["Bhel Puri - (160 Kcal)", "Sev - (80 Kcal)", "Nimbu Pani - (60 Kcal)"],
-                "Dinner": ["Mutter Paneer - (220 Kcal)", "Dal Fry - (150 Kcal)", "Jeera Rice - (184 Kcal)", "Roti - (280 Kcal)", "Rasgulla - (120 Kcal)"]
-            },
-            "Sunday": {
-                "Breakfast": ["Chole Kulche - (380 Kcal)", "Boondi Raita - (110 Kcal)", "Salad - (40 Kcal)", "Sweet Lassi - (180 Kcal)"],
-                "Lunch": ["Veg Pulao - (210 Kcal)", "Paneer Butter Masala - (280 Kcal)", "Pineapple Raita - (120 Kcal)", "Fryums - (60 Kcal)"],
-                "Snack": ["Veg Grilled Sandwich - (220 Kcal)", "Potato Chips - (150 Kcal)", "Cold Drink - (140 Kcal)"],
-                "Dinner": ["SPECIAL THALI: Paneer, Dal Makhani, Naan, Rice, Sweet, Salad - (850 Kcal)"]
+        let weeklyMenu = {};
+        let isFirstTimeMenuSetup = false;
+        const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        const mealsList = ['Breakfast', 'Lunch', 'Snack', 'Dinner'];
+
+        async function loadMenuData() {
+            try {
+                const res = await fetch('http://127.0.0.1:8000/api/menu/' + CURRENT_MESS_ID);
+                if (res.ok) {
+                    const data = await res.json();
+                    weeklyMenu = data.menu_data || {};
+                    if (Object.keys(weeklyMenu).length === 0) {
+                        openMenuRegistrationModal(false);
+                    } else {
+                        updateMenuDisplay();
+                    }
+                } else {
+                    weeklyMenu = {};
+                    openMenuRegistrationModal(false);
+                }
+            } catch (e) {
+                console.error("Failed to load menu data", e);
+                openMenuRegistrationModal(false);
             }
-        };
+        }
+
+        function buildMenuRegForms() {
+            const container = document.getElementById('menuRegForms');
+            let html = '';
+            daysOfWeek.forEach((day, idx) => {
+                const displayStyle = idx === 0 ? 'block' : 'none';
+                html += `<div id="menuRegDay_${day}" class="menu-reg-day-content" style="display:${displayStyle};">`;
+                mealsList.forEach(meal => {
+                    html += `
+                        <div style="margin-bottom:16px;">
+                            <label style="display:block; font-size:13px; font-weight:700; color:var(--text-main); margin-bottom:6px;">${meal}</label>
+                            <textarea id="menuInput_${day}_${meal}" placeholder="E.g. Dal, Roti, Rice, Salad" style="width:100%; height:80px; padding:10px; border:1px solid var(--border); border-radius:8px; font-size:13px; font-family:inherit; resize:vertical; outline:none; transition:border-color 0.2s; background:var(--bg-surface); color:var(--text-main);" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function switchMenuRegTab(day, btnElement) {
+            document.querySelectorAll('#menuRegTabs .menu-tab-btn').forEach(btn => btn.classList.remove('active'));
+            if (btnElement) btnElement.classList.add('active');
+
+            document.querySelectorAll('.menu-reg-day-content').forEach(el => el.style.display = 'none');
+            document.getElementById(`menuRegDay_${day}`).style.display = 'block';
+        }
+
+        function openMenuRegistrationModal(isEditMode) {
+            isFirstTimeMenuSetup = !isEditMode;
+
+            if (!document.getElementById('menuInput_Monday_Breakfast')) {
+                buildMenuRegForms();
+            }
+
+            daysOfWeek.forEach(day => {
+                mealsList.forEach(meal => {
+                    const textarea = document.getElementById(`menuInput_${day}_${meal}`);
+                    if (weeklyMenu && weeklyMenu[day] && weeklyMenu[day][meal]) {
+                        textarea.value = weeklyMenu[day][meal].join(', ');
+                    } else {
+                        textarea.value = '';
+                    }
+                });
+            });
+
+            if (isFirstTimeMenuSetup) {
+                document.getElementById('menuRegCloseBtn').style.display = 'none';
+                document.getElementById('menuRegCancelBtn').style.display = 'none';
+            } else {
+                document.getElementById('menuRegCloseBtn').style.display = 'block';
+                document.getElementById('menuRegCancelBtn').style.display = 'block';
+            }
+
+            const overlay = document.getElementById('menuRegModalOverlay');
+            overlay.style.display = 'flex';
+            setTimeout(() => {
+                overlay.style.opacity = '1';
+                document.getElementById('menuRegModal').style.transform = 'scale(1)';
+            }, 10);
+        }
+
+        function closeMenuRegistrationModal() {
+            if (isFirstTimeMenuSetup) return; // Prevent closing if mandatory
+
+            const overlay = document.getElementById('menuRegModalOverlay');
+            overlay.style.opacity = '0';
+            document.getElementById('menuRegModal').style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 300);
+        }
+
+        async function saveMenuRegistration(event) {
+            const btn = event.currentTarget;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+            btn.disabled = true;
+
+            const newMenu = {};
+            daysOfWeek.forEach(day => {
+                newMenu[day] = {};
+                mealsList.forEach(meal => {
+                    const text = document.getElementById(`menuInput_${day}_${meal}`).value;
+                    if (text.trim()) {
+                        newMenu[day][meal] = text.split(/,|\n/).map(i => i.trim()).filter(i => i);
+                    } else {
+                        newMenu[day][meal] = [];
+                    }
+                });
+            });
+
+            try {
+                const res = await fetch('http://127.0.0.1:8000/api/menu', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        mess_id: CURRENT_MESS_ID,
+                        menu_data: newMenu
+                    })
+                });
+
+                if (res.ok) {
+                    weeklyMenu = newMenu;
+                    isFirstTimeMenuSetup = false;
+                    closeMenuRegistrationModal();
+                    updateMenuDisplay();
+                    loadAttendanceLogs(); // refresh tables with new menu chips
+                    showToast("Menu saved successfully!", "success");
+                } else {
+                    showToast("Failed to save menu", "error");
+                }
+            } catch (e) {
+                console.error("Save menu error", e);
+                showToast("Connection error", "error");
+            } finally {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            }
+        }
 
         function updateMenuDisplay() {
             const dateInput = document.getElementById('menuDateSelect');
@@ -2750,9 +2927,9 @@
                     `).join('');
 
                     container.innerHTML += `
-                        <div style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:16px; margin-bottom:16px;">
+                        <div style="background:var(--bg-body); border:1px solid var(--border); border-radius:8px; padding:16px; margin-bottom:16px;">
                             <div style="display:flex; align-items:center; margin-bottom:12px;">
-                                <div style="width:32px; height:32px; background:white; border:1px solid var(--border); border-radius:6px; display:flex; align-items:center; justify-content:center; color:var(--primary); margin-right:12px;">
+                                <div style="width:32px; height:32px; background:var(--bg-surface); border:1px solid var(--border); border-radius:6px; display:flex; align-items:center; justify-content:center; color:var(--primary); margin-right:12px;">
                                     <i class="fa-solid ${meal.icon}"></i>
                                 </div>
                                 <div>
@@ -2810,6 +2987,8 @@
                     statusBadge.style.borderColor = 'var(--success)';
                     pulseDot.style.background = 'var(--success)';
                     statusText.innerText = "System Online";
+
+                    await loadMenuData();
 
                     loadBroadcastHistory();
                     loadAccuracyChart();
@@ -3888,7 +4067,7 @@
                     <div id="ngo-contact-${ngo.id}"
                         onclick="openNgoChat(${ngo.id}, '${ngo.name.replace(/'/g, '&apos;')}')"
                         style="display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; cursor:pointer; transition:background 0.15s; margin-bottom:4px;"
-                        onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background=(this.classList.contains('active-contact')?'var(--primary-light)':'transparent')">
+                        onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background=(this.classList.contains('active-contact')?'var(--primary-light)':'transparent')">
                         <div style="width:34px; height:34px; border-radius:50%; background:var(--primary-light); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0;">
                             <i class="fa-solid fa-building-ngo"></i>
                         </div>
