@@ -2951,7 +2951,7 @@
         let socket = null;
 
         function connectWebSocket() {
-            const wsUrl = "ws://127.0.0.1:8000/ws";
+            const wsUrl = BACKEND_URL.replace(/^https?:\/\//i, window.location.protocol === 'https:' ? 'wss://' : 'ws://') + 'ws';
             socket = new WebSocket(wsUrl);
 
             socket.onopen = function (e) {
@@ -2961,9 +2961,17 @@
             socket.onmessage = function (event) {
                 const msg = JSON.parse(event.data);
                 if (msg.type === "CHAT_MESSAGE") {
-                    appendChatMessage(msg.data.sender_type, msg.data.message, msg.data.timestamp);
-                    if (msg.data.sender_type !== 'Admin') {
-                        showToast(`New message from ${msg.data.sender_type}`, 'info');
+                    if (msg.data.mess_id == CURRENT_MESS_ID) {
+                        if (msg.data.ngo_id == CURRENT_NGO_ID) {
+                            appendChatMessage(msg.data.sender_type, msg.data.message, msg.data.timestamp);
+                            if (msg.data.sender_type !== 'Admin') {
+                                showToast(`New message from NGO`, 'info');
+                            }
+                        } else {
+                            if (msg.data.sender_type !== 'Admin') {
+                                showToast(`New message from NGO`, 'chat');
+                            }
+                        }
                     }
                 }
             };
@@ -4112,7 +4120,7 @@
         async function loadChatHistory() {
             if (!CURRENT_NGO_ID) return;
             try {
-                const res = await fetch(BACKEND_URL + '/api/chat-history?mess_id=' + CURRENT_MESS_ID + '&ngo_id=' + CURRENT_NGO_ID);
+                const res = await fetch(BACKEND_URL + 'api/chat-history?mess_id=' + CURRENT_MESS_ID + '&ngo_id=' + CURRENT_NGO_ID);
                 const msgs = await res.json();
                 const container = document.getElementById('chatMessages');
                 container.innerHTML = '';
@@ -4179,7 +4187,7 @@
             showTypingIndicator();
 
             try {
-                await fetch(BACKEND_URL + '/api/chat', {
+                await fetch(BACKEND_URL + 'api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -4260,19 +4268,19 @@
 
         async function exportAttendanceCSV() {
             showToast("Generating Attendance CSV...", "info");
-            window.location.href = BACKEND_URL + "/api/reports/attendance/csv";
+            window.location.href = BACKEND_URL + "api/reports/attendance/csv";
             setTimeout(() => showToast("Download started", "success"), 1000);
         }
 
         async function exportWasteCSV() {
             showToast("Generating Waste Report...", "info");
-            window.location.href = BACKEND_URL + "/api/reports/waste/csv";
+            window.location.href = BACKEND_URL + "api/reports/waste/csv";
             setTimeout(() => showToast("Download started", "success"), 1000);
         }
 
         async function exportWeeklyCSV() {
             showToast("Generating Weekly Summary...", "info");
-            window.location.href = BACKEND_URL + "/api/reports/weekly/csv";
+            window.location.href = BACKEND_URL + "api/reports/weekly/csv";
             setTimeout(() => showToast("Download started", "success"), 1000);
         }
 
@@ -4281,7 +4289,7 @@
                 return;
             }
             try {
-                const res = await fetch(BACKEND_URL + "/api/settings/clear-attendance?mess_id=" + CURRENT_MESS_ID, {
+                const res = await fetch(BACKEND_URL + "api/settings/clear-attendance?mess_id=" + CURRENT_MESS_ID, {
                     method: 'DELETE'
                 });
                 if (res.ok) {
