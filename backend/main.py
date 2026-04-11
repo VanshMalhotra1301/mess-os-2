@@ -278,6 +278,33 @@ def get_ngo_history(ngo_id: int, db: Session = Depends(get_db)):
         })
     return result
 
+# 6c. Pending Broadcasts (For NGO Feed on Load)
+@app.get("/api/ngo/pending-broadcasts")
+def get_pending_broadcasts(ngo_id: int, db: Session = Depends(get_db)):
+    from models import MessProfile
+    recipient_rows = db.query(SurplusRecipient).filter(
+        SurplusRecipient.ngo_id == ngo_id,
+        SurplusRecipient.status == "PENDING"
+    ).all()
+    surplus_ids = [r.surplus_id for r in recipient_rows]
+    posts = db.query(SurplusPost).filter(
+        SurplusPost.id.in_(surplus_ids),
+        SurplusPost.status == "AVAILABLE"
+    ).order_by(SurplusPost.id.desc()).all()
+    
+    result = []
+    for p in posts:
+        mess = db.query(MessProfile).filter(MessProfile.user_id == p.mess_id).first()
+        result.append({
+            "id": p.id,
+            "description": p.meal_description,
+            "quantity": p.quantity_kg,
+            "expiry": p.expiry_time,
+            "mess_id": p.mess_id,
+            "mess": mess.org_name if mess else "Hostel Mess"
+        })
+    return result
+
 @app.get("/api/ngo/analytics")
 def get_analytics(ngo_id: int, db: Session = Depends(get_db)):
     """

@@ -1482,16 +1482,27 @@
                     createAlertCard(message.data);
                     loadAnalytics();
                 } else if (message.type === "CHAT_MESSAGE") {
-                    // Show typing indicator briefly before message appears
-                    if (message.data.sender !== 'NGO') {
-                        showNgoTyping();
-                        setTimeout(() => {
-                            hideNgoTyping();
-                            appendChatMessage(message.data.sender, message.data.message, message.data.timestamp);
-                            showToast('chat', '💬 New Message', message.data.message.substring(0, 60) + (message.data.message.length > 60 ? '...' : ''));
-                        }, 900);
-                    } else {
-                        appendChatMessage(message.data.sender, message.data.message, message.data.timestamp);
+                    // Only process messages involving this NGO and the active Mess
+                    if (message.data.ngo_id == CURRENT_NGO_ID) {
+                        if (message.data.mess_id == CURRENT_MESS_ID) {
+                            // If sender is NOT NGO, show typing briefly then append and toast
+                            if (message.data.sender_type !== 'NGO') {
+                                showNgoTyping();
+                                setTimeout(() => {
+                                    hideNgoTyping();
+                                    appendChatMessage(message.data.sender_type, message.data.message, message.data.timestamp);
+                                    showToast('chat', '💬 New Message', message.data.message.substring(0, 60) + (message.data.message.length > 60 ? '...' : ''));
+                                }, 900);
+                            } else {
+                                // Direct append for NGO (myself)
+                                appendChatMessage(message.data.sender_type, message.data.message, message.data.timestamp);
+                            }
+                        } else {
+                            // Background message for this NGO but a different mess
+                            if (message.data.sender_type !== 'NGO') {
+                                showToast('chat', '💬 New Message', message.data.message.substring(0, 60) + (message.data.message.length > 60 ? '...' : ''));
+                            }
+                        }
                     }
                 }
             };
@@ -1963,11 +1974,25 @@
             if (e.key === 'Enter') sendChatMessage();
         }
 
+        // --- 6b. LOAD PENDING BROADCASTS ---
+        async function loadPendingBroadcasts() {
+            try {
+                const res = await fetch(BACKEND_URL + 'api/ngo/pending-broadcasts?ngo_id=' + CURRENT_NGO_ID);
+                const data = await res.json();
+                data.forEach(item => {
+                    createAlertCard(item);
+                });
+            } catch (e) {
+                console.error("Failed to load pending broadcasts", e);
+            }
+        }
+
         // --- 7. INIT ---
         window.onload = function () {
             connectWebSocket();
             loadAnalytics();
             updateImpactCounters(0);
+            loadPendingBroadcasts();
         }
     </script>
 
